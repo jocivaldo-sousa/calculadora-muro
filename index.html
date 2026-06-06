@@ -2,7 +2,9 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>Calculadora do Muro ETE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -215,12 +217,21 @@
         ::-webkit-scrollbar-track { background: var(--bg); }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
-        /* IMPRESSÃO */
+        /* IMPRESSÃO — A4 retrato */
         @media print {
-            @page { size: A4; margin: 17.5mm 20mm 17.5mm 20mm; }
-            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            body { background: #fff !important; margin: 0; }
+            @page {
+                size: A4 portrait;
+                margin: 20mm 25mm 20mm 25mm; /* Margens ampliadas: 25mm nas laterais para um visual mais limpo */
+            }
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            body { background: #fff !important; margin: 0 !important; padding: 0 !important; }
+
+            /* Oculta tudo exceto o relatório */
             #app, .no-print, .no-print-modal { display: none !important; }
+
             #modal-relatorio {
                 display: block !important;
                 position: static !important;
@@ -233,15 +244,54 @@
                 border-radius: 0 !important;
                 max-width: 100% !important;
                 background: #fff !important;
+                padding: 0 !important;
             }
-            #relatorio-doc-inner {
-                display: table;
-                width: 100%;
-                border-collapse: collapse;
+
+            /* ── CABEÇALHO: fixo no topo, mesmo espaço em todas as páginas ── */
+            #rel-cabecalho {
+                position: fixed;
+                top: 0; left: 0; right: 0;
+                background: #fff;
+                padding: 0 0 8mm 0 !important; /* Espaçamento apenas embaixo, laterais herdadas da página */
+                border-bottom: none;
+                z-index: 1000;
             }
-            #rel-cabecalho { display: table-header-group; }
-            #rel-corpo-wrap { display: table-row-group; }
-            .rel-secao { page-break-inside: avoid; }
+            #rel-cabecalho-inner {
+                padding: 0 !important; /* Remove padding inline para alinhar com as margens da página */
+                border-bottom: 2px solid #f0ece6;
+                padding-bottom: 12px !important;
+            }
+
+            /* Compensar o espaço do cabeçalho fixo no corpo */
+            #rel-corpo-wrap {
+                /* altura do cabeçalho fixo ajustada */
+                margin-top: 32mm;
+                padding: 0 !important;
+            }
+            
+            #rel-corpo { padding: 0 !important; }
+
+            /* ── QUEBRA DE PÁGINA: nunca corta seção no meio ── */
+            .print-section {
+                break-inside:      avoid !important;
+                page-break-inside: avoid !important;
+                display: block !important;
+            }
+            .print-section table {
+                break-inside:      avoid !important;
+                page-break-inside: avoid !important;
+            }
+            /* Título nunca fica orphão no fim da página */
+            .print-section > div:first-child {
+                break-after:      avoid !important;
+                page-break-after: avoid !important;
+            }
+
+            /* Rodapé do documento */
+            #rel-rodape-impresso {
+                padding: 16px 0 0 0 !important;
+                margin-top: 24px !important;
+            }
         }
     </style>
 </head>
@@ -526,26 +576,25 @@
 
             <!-- CABEÇALHO (repete em cada página via table-header-group) -->
             <div id="rel-cabecalho">
-                <div style="padding:20px 32px 14px 32px;background:#fff;line-height:1.15;">
-                    <div style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;color:#1a1714;letter-spacing:.01em;">RELATÓRIO ANALÍTICO</div>
-                    <div style="font-family:'DM Sans',sans-serif;font-size:12px;color:#1a1714;margin-top:2px;line-height:1.15;">Dimensionamento estrutural e quantitativo de materiais</div>
-                    <div style="font-family:'DM Sans',sans-serif;font-size:10px;color:#1a1714;margin-top:2px;line-height:1.15;">
-                        Desenvolvido por <strong>Jocivaldo Sousa</strong> - <span id="rel-data-hora"></span>
+                <div style="padding:32px 40px 16px 40px;background:#fff;line-height:1.2;" id="rel-cabecalho-inner">
+                    <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#1a1714;letter-spacing:-.02em;">RELATÓRIO ANALÍTICO</div>
+                    <div style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:#6b6560;margin-top:4px;">Dimensionamento estrutural e quantitativo de materiais</div>
+                    <div style="font-family:'DM Mono',monospace;font-size:11px;color:#a09a94;margin-top:10px;">
+                        Desenvolvido por <strong style="color:#1a1714;">Jocivaldo Sousa</strong> · <span id="rel-data-hora"></span>
                     </div>
-                    <div style="margin-top:12px;height:1px;background:#e2ddd6;"></div>
                 </div>
             </div>
 
             <!-- CORPO -->
             <div id="rel-corpo-wrap">
-                <div style="padding:12px 32px 0 32px;font-family:'DM Sans',sans-serif;line-height:1.15;" id="rel-corpo">
+                <div style="padding:16px 40px 0 40px;font-family:'DM Sans',sans-serif;line-height:1.2;" id="rel-corpo">
                     <!-- gerado dinamicamente por gerarRelatorio() -->
                 </div>
 
                 <!-- RODAPÉ -->
-                <div id="rel-rodape-impresso" style="padding:12px 32px;margin-top:20px;border-top:1px solid #e2ddd6;display:flex;justify-content:space-between;align-items:center;">
+                <div id="rel-rodape-impresso" style="padding:16px 40px;margin-top:32px;border-top:1px solid #f0ece6;display:flex;justify-content:space-between;align-items:center;">
                     <div style="font-family:'DM Mono',monospace;font-size:10px;color:#a09a94;">Calculadora do Muro ETE · Dimensionamento estrutural</div>
-                    <div style="font-family:'Syne',sans-serif;font-size:12px;font-weight:900;color:#1a1714;">By Jocivaldo Sousa</div>
+                    <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:#1a1714;">By Jocivaldo Sousa</div>
                 </div>
             </div>
 
@@ -710,25 +759,25 @@
         // Data/Hora
         const agora = new Date();
         const dataHora = agora.toLocaleDateString('pt-BR', {weekday:'long',day:'2-digit',month:'long',year:'numeric'})
-                       + ' · ' + agora.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+                       + ' às ' + agora.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
         $('rel-data-hora').innerText = dataHora;
 
-        // ── Helpers de tabela ──
-        const thStyle  = `padding:5px 10px;font-weight:600;color:#a09a94;text-transform:uppercase;font-size:9px;letter-spacing:.08em;border-bottom:1px solid #c0bbb4;line-height:1.15;`;
-        const tdLabel  = `padding:7px 10px;font-size:12px;color:#1a1714;border-bottom:1px solid #e8e4de;line-height:1.15;`;
-        const tdFormula= `padding:7px 10px;font-size:11px;color:#6b6560;font-family:'DM Mono',monospace;border-bottom:1px solid #e8e4de;line-height:1.15;`;
-        const tdValue  = `padding:7px 10px;font-size:12px;font-weight:700;color:#1a1714;font-family:'DM Mono',monospace;text-align:right;border-bottom:1px solid #e8e4de;line-height:1.15;`;
-        const tdTotal  = `padding:7px 10px;font-size:12px;font-weight:700;text-align:right;font-family:'DM Mono',monospace;line-height:1.15;`;
+        // ── Helpers de tabela (Atualizados para um visual mais limpo) ──
+        const thStyle  = `padding:10px 12px;font-weight:700;color:#a09a94;text-transform:uppercase;font-size:10px;letter-spacing:.06em;border-bottom:2px solid #f0ece6;line-height:1.2;text-align:left;`;
+        const tdLabel  = `padding:10px 12px;font-size:12px;color:#1a1714;border-bottom:1px solid #f5f3ef;line-height:1.4;`;
+        const tdFormula= `padding:10px 12px;font-size:11px;color:#a09a94;font-family:'DM Mono',monospace;border-bottom:1px solid #f5f3ef;line-height:1.4;`;
+        const tdValue  = `padding:10px 12px;font-size:13px;font-weight:700;color:#1a1714;font-family:'DM Mono',monospace;text-align:right;border-bottom:1px solid #f5f3ef;line-height:1.4;`;
+        const tdTotal  = `padding:14px 12px;font-size:13px;font-weight:800;text-align:right;font-family:'DM Mono',monospace;line-height:1.4;`;
 
         function secTitle(num, label, cor) {
-            return `<div class="rel-secao" style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;
-                    text-transform:uppercase;letter-spacing:.06em;color:${cor};
-                    border-bottom:1px solid #c0bbb4;padding-bottom:4px;margin:0 0 8px;display:flex;align-items:center;gap:5px;line-height:1.15;">
-                    <span style="font-family:'DM Mono',monospace;font-size:10px;font-weight:500;opacity:.6;">${num}</span>${label}</div>`;
+            return `<div class="rel-secao" style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:800;
+                    text-transform:uppercase;letter-spacing:.05em;color:${cor};
+                    border-bottom:2px solid #f0ece6;padding-bottom:8px;margin:24px 0 12px;display:flex;align-items:center;gap:8px;line-height:1.2;">
+                    <span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:600;opacity:.7;background:rgba(0,0,0,0.04);padding:2px 6px;border-radius:4px;color:${cor};">${num}</span>${label}</div>`;
         }
         function table(rows, headers) {
-            const ths = headers.map(h=>`<th style="${thStyle}">${h}</th>`).join('');
-            return `<table style="width:100%;border-collapse:collapse;margin-bottom:6px;">
+            const ths = headers.map((h, i)=>`<th style="${thStyle}${i===2?'text-align:right;':''}">${h}</th>`).join('');
+            return `<table style="width:100%;border-collapse:collapse;margin-bottom:12px;page-break-inside:avoid;break-inside:avoid;">
                         <thead><tr>${ths}</tr></thead>
                         <tbody>${rows}</tbody>
                     </table>`;
@@ -741,9 +790,9 @@
             </tr>`;
         }
         function rowTotal(label, value, cor) {
-            return `<tr style="border-top:1px solid #e2ddd6;">
-                <td colspan="2" style="${tdTotal}font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:${cor||'#c8460a'};text-align:center;">${label}</td>
-                <td style="${tdTotal}color:${cor||'#c8460a'};font-size:13px;">${value}</td>
+            return `<tr style="background-color:rgba(0,0,0,0.015);">
+                <td colspan="2" style="${tdTotal}font-family:'DM Sans',sans-serif;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:${cor||'#c8460a'};text-align:right;">${label}</td>
+                <td style="${tdTotal}color:${cor||'#c8460a'};font-size:14px;">${value}</td>
             </tr>`;
         }
 
@@ -767,7 +816,7 @@
         ].join('');
 
         const sec01 = `
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:16px;">
+            <div class="print-section" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:20px;">
                 <div>
                     ${secTitle('01', 'Dimensões Gerais e Estrutura', '#c8460a')}
                     ${table(rowsParams, ['Parâmetro','—','Valor'])}
@@ -785,7 +834,7 @@
             row('Comprimento Total do Muro', `L.livre + (${c.qtdPilares} × ${fmt2(c.larguraPilar)} m)`, fmtM(c.comprimentoTotal)),
         ].join('');
         const sec02 = `
-            <div style="margin-bottom:18px;">
+            <div class="print-section" style="margin-bottom:20px;">
                 ${secTitle('03', 'Geometria do Muro', '#1a4fa0')}
                 ${table(rowsGeo, ['Elemento','Fórmula','Resultado'])}
             </div>`;
@@ -801,7 +850,7 @@
             rowTotal('Total Chapisco', fmtM2(c.areaChapisco), '#1a4fa0'),
         ].join('');
         const sec03 = `
-            <div style="margin-bottom:18px;">
+            <div class="print-section" style="margin-bottom:20px;">
                 ${secTitle('04', 'Alvenaria e Revestimento (Chapisco)', '#1a4fa0')}
                 ${table(rowsAlv, ['Elemento','Fórmula','Resultado'])}
             </div>`;
@@ -820,7 +869,7 @@
             rowTotal('Total Concreto Estrutural', fmt3(c.totalEstrutural), '#1a4fa0'),
         ].join('');
         const sec04 = `
-            <div style="margin-bottom:18px;">
+            <div class="print-section" style="margin-bottom:20px;">
                 ${secTitle('05', 'Concreto Estrutural', '#1a4fa0')}
                 ${table(rowsEst, ['Elemento','Fórmula','Volume'])}
             </div>`;
@@ -836,7 +885,7 @@
             rowTotal('Total Concreto Fundação', fmt3(c.totalFundacao), '#a07010'),
         ].join('');
         const sec05 = `
-            <div style="margin-bottom:18px;">
+            <div class="print-section" style="margin-bottom:20px;">
                 ${secTitle('06', 'Fundação', '#a07010')}
                 ${table(rowsFundVol, ['Elemento','Fórmula','Volume'])}
             </div>`;
@@ -849,72 +898,73 @@
             row(`Lastro sob Blocos (${c.qtdPilares} un.)`,
                 c.blocoOk ? `${c.qtdPilares} × (${fmt2(c.largLastroBlocos)} × ${fmt2(c.cBloco)} × ${fmt2(c.espLastroBlocos)} m)` : 'Blocos não informados',
                 c.blocoOk ? fmt3(c.magroBlocos) : '—'),
-            rowTotal('Total Concreto Magro (Lastro)', fmt3(c.totalMagro), '#555'),
+            rowTotal('Total Concreto Magro (Lastro)', fmt3(c.totalMagro), '#6b6560'),
         ].join('');
         const sec06 = `
-            <div style="margin-bottom:18px;">
-                ${secTitle('07', 'Concreto Magro — Lastro', '#555')}
+            <div class="print-section" style="margin-bottom:20px;">
+                ${secTitle('07', 'Concreto Magro — Lastro', '#6b6560')}
                 ${table(rowsMagro, ['Elemento','Fórmula','Volume'])}
             </div>`;
 
         // ── RESUMO GERAL ──
         const resumo = `
-            <div style="background:#f8f6f3;border-radius:0;padding:20px 0;margin-bottom:20px;border-top:2px solid #e2ddd6;border-bottom:1px solid #e2ddd6;">
-                <div style="font-family:'Syne',sans-serif;font-size:11px;font-weight:900;text-transform:uppercase;
-                            letter-spacing:.1em;color:#6b6560;margin-bottom:14px;">
+            <div style="background:#fdfdfc;border:1px solid #f0ece6;border-radius:12px;padding:24px;margin-top:32px;margin-bottom:24px;page-break-inside:avoid;break-inside:avoid;">
+                <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:900;text-transform:uppercase;
+                            letter-spacing:.08em;color:#1a1714;margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+                    <i data-lucide="check-circle-2" style="width:18px;height:18px;color:#c8460a;"></i>
                     RESUMO GERAL — BASE PARA MEDIÇÃO
                 </div>
                 <table style="width:100%;border-collapse:collapse;">
                     <tr>
-                        <td style="padding:9px 0;font-size:12px;color:#1a1714;border-bottom:1px solid #e2ddd6;line-height:1.15;">
-                            <span style="font-size:10px;font-family:'DM Mono',monospace;color:#a09a94;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:2px;font-size:9px;">Alvenaria</span>
+                        <td style="padding:12px 0;font-size:12px;color:#1a1714;border-bottom:1px solid #f0ece6;line-height:1.4;">
+                            <span style="font-size:10px;font-family:'DM Mono',monospace;color:#a09a94;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:4px;">Alvenaria</span>
                             Blocos cerâmicos 9×19×24 cm (com 10% perda)
                         </td>
-                        <td style="padding:9px 0;font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:#1a1714;text-align:right;border-bottom:1px solid #e2ddd6;line-height:1.15;">
+                        <td style="padding:12px 0;font-family:'DM Mono',monospace;font-size:15px;font-weight:700;color:#1a1714;text-align:right;border-bottom:1px solid #f0ece6;">
                             ${c.qtdBlocosTotal.toLocaleString('pt-BR')} un.
                         </td>
                     </tr>
                     <tr>
-                        <td style="padding:9px 0;font-size:12px;color:#1a1714;border-bottom:1px solid #e2ddd6;line-height:1.15;">
-                            <span style="font-size:10px;font-family:'DM Mono',monospace;color:#a09a94;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:2px;font-size:9px;">Chapisco</span>
+                        <td style="padding:12px 0;font-size:12px;color:#1a1714;border-bottom:1px solid #f0ece6;line-height:1.4;">
+                            <span style="font-size:10px;font-family:'DM Mono',monospace;color:#a09a94;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:4px;">Chapisco</span>
                             2 faces · muro + cinta + 10 cm baldrame
                         </td>
-                        <td style="padding:9px 0;font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:#1a1714;text-align:right;border-bottom:1px solid #e2ddd6;line-height:1.15;">
+                        <td style="padding:12px 0;font-family:'DM Mono',monospace;font-size:15px;font-weight:700;color:#1a1714;text-align:right;border-bottom:1px solid #f0ece6;">
                             ${fmtM2(c.areaChapisco)}
                         </td>
                     </tr>
                     <tr>
-                        <td style="padding:9px 0;font-size:12px;color:#1a1714;border-bottom:1px solid #e2ddd6;line-height:1.15;">
-                            <span style="font-size:10px;font-family:'DM Mono',monospace;color:#a09a94;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:2px;font-size:9px;">Concreto Estrutural</span>
+                        <td style="padding:12px 0;font-size:12px;color:#1a1714;border-bottom:1px solid #f0ece6;line-height:1.4;">
+                            <span style="font-size:10px;font-family:'DM Mono',monospace;color:#a09a94;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:4px;">Concreto Estrutural</span>
                             Pilares + Cinta + Baldrame
                         </td>
-                        <td style="padding:9px 0;font-family:'DM Mono',monospace;font-size:16px;font-weight:600;color:#1a4fa0;text-align:right;border-bottom:1px solid #e2ddd6;">
+                        <td style="padding:12px 0;font-family:'DM Mono',monospace;font-size:16px;font-weight:700;color:#1a4fa0;text-align:right;border-bottom:1px solid #f0ece6;">
                             ${fmt3(c.totalEstrutural)}
                         </td>
                     </tr>
                     <tr>
-                        <td style="padding:9px 0;font-size:12px;color:#1a1714;border-bottom:1px solid #e2ddd6;line-height:1.15;">
-                            <span style="font-size:10px;font-family:'DM Mono',monospace;color:#a09a94;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:2px;font-size:9px;">Concreto Fundação</span>
+                        <td style="padding:12px 0;font-size:12px;color:#1a1714;border-bottom:1px solid #f0ece6;line-height:1.4;">
+                            <span style="font-size:10px;font-family:'DM Mono',monospace;color:#a09a94;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:4px;">Concreto Fundação</span>
                             Tocos + Blocos
                         </td>
-                        <td style="padding:9px 0;font-family:'DM Mono',monospace;font-size:16px;font-weight:600;color:#a07010;text-align:right;border-bottom:1px solid #e2ddd6;">
+                        <td style="padding:12px 0;font-family:'DM Mono',monospace;font-size:16px;font-weight:700;color:#a07010;text-align:right;border-bottom:1px solid #f0ece6;">
                             ${fmt3(c.totalFundacao)}
                         </td>
                     </tr>
                     <tr>
-                        <td style="padding:9px 0;font-size:12px;color:#1a1714;border-bottom:1px solid #e2ddd6;line-height:1.15;">
-                            <span style="font-size:10px;font-family:'DM Mono',monospace;color:#a09a94;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:2px;font-size:9px;">Concreto Magro</span>
+                        <td style="padding:12px 0;font-size:12px;color:#1a1714;border-bottom:1px solid #1a1714;line-height:1.4;">
+                            <span style="font-size:10px;font-family:'DM Mono',monospace;color:#a09a94;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:4px;">Concreto Magro</span>
                             Lastro sob baldrame + blocos
                         </td>
-                        <td style="padding:9px 0;font-family:'DM Mono',monospace;font-size:16px;font-weight:600;color:#6b6560;text-align:right;border-bottom:1px solid #e2ddd6;">
+                        <td style="padding:12px 0;font-family:'DM Mono',monospace;font-size:16px;font-weight:700;color:#6b6560;text-align:right;border-bottom:1px solid #1a1714;">
                             ${fmt3(c.totalMagro)}
                         </td>
                     </tr>
                     <tr>
-                        <td style="padding:14px 0 4px;font-family:'Syne',sans-serif;font-size:14px;font-weight:900;color:#6b6560;text-transform:uppercase;letter-spacing:.04em;">
+                        <td style="padding:18px 0 4px;font-family:'Syne',sans-serif;font-size:15px;font-weight:900;color:#1a1714;text-transform:uppercase;letter-spacing:.04em;">
                             VOLUME TOTAL DE CONCRETO
                         </td>
-                        <td style="padding:14px 0 4px;font-family:'DM Mono',monospace;font-size:20px;font-weight:600;color:#c8460a;text-align:right;">
+                        <td style="padding:18px 0 4px;font-family:'DM Mono',monospace;font-size:22px;font-weight:700;color:#c8460a;text-align:right;">
                             ${fmt3(c.grandTotal)}
                         </td>
                     </tr>
@@ -923,10 +973,10 @@
 
         // ── Notas Técnicas ──
         const notas = `
-            <div style="background:#f5f3ef;border-radius:8px;padding:14px 18px;font-size:11px;
-                        color:#6b6560;font-family:'DM Mono',monospace;line-height:1.9;">
-                <strong style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:700;
-                               text-transform:uppercase;letter-spacing:.06em;color:#1a1714;">Notas Técnicas</strong><br>
+            <div style="background:#f5f3ef;border-radius:10px;padding:16px 20px;font-size:11px;page-break-inside:avoid;break-inside:avoid;
+                        color:#6b6560;font-family:'DM Mono',monospace;line-height:1.8;">
+                <strong style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;
+                               text-transform:uppercase;letter-spacing:.06em;color:#1a1714;display:block;margin-bottom:6px;">Notas Técnicas</strong>
                 · Alvenaria: bloco cerâmico 9×19×24 cm — rendimento 20 un/m² — acréscimo de 10% para perdas<br>
                 · Pilares: seção = Larg. Pilar × Esp. Parede · Altura = Altura do Muro (cinta calculada separadamente)<br>
                 · Cinta de Amarração: comprimento total inclui largura dos pilares extremos<br>
@@ -944,6 +994,7 @@
     }
 
     function imprimirRelatorio() {
+        // Dica: no diálogo de impressão, desative "Cabeçalhos e rodapés" do navegador
         window.print();
     }
 
@@ -955,11 +1006,34 @@
 
     // ─── RESPONSIVO ──────────────────────────────────────────
     function adjustLayout() {
+        const w = window.innerWidth;
         const grid = document.getElementById('main-grid');
-        grid.style.gridTemplateColumns = window.innerWidth < 760 ? '1fr' : '1fr 1fr';
+        grid.style.gridTemplateColumns = w < 768 ? '1fr' : '1fr 1fr';
+
+        // Header mobile
+        const header = document.querySelector('#app > .card');
+        if (header) {
+            if (w < 768) {
+                header.style.flexDirection = 'column';
+                header.style.alignItems    = 'flex-start';
+                header.style.gap           = '12px';
+                header.style.padding       = '16px';
+                const hr = header.querySelector('div[style*="display:flex"]');
+                if (hr) { hr.style.width = '100%'; hr.style.justifyContent = 'space-between'; }
+            } else {
+                header.style.flexDirection = 'row';
+                header.style.alignItems    = 'center';
+                header.style.gap           = '12px';
+                header.style.padding       = '20px 24px';
+            }
+        }
+        // Grids 3 colunas → 2 no mobile pequeno
+        document.querySelectorAll('.card div[style*="1fr 1fr 1fr"]').forEach(el => {
+            el.style.gridTemplateColumns = w < 480 ? '1fr 1fr' : '1fr 1fr 1fr';
+        });
     }
     window.addEventListener('resize', adjustLayout);
-    adjustLayout();
+    setTimeout(adjustLayout, 50);
 
     calculateMaterials();
 </script>
