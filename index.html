@@ -189,30 +189,21 @@
             color: var(--bg); transition: color .3s;
         }
 
-        /* DIVIDER */
         .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
-
-        /* TOOLTIP */
         [title] { cursor: help; }
-
-        /* HEADER */
         .logo-badge {
             width: 44px; height: 44px; border-radius: 12px;
             background: var(--accent); display: flex; align-items: center; justify-content: center;
         }
-
-        /* WARNING */
         .warn {
             font-size: 11px; color: var(--accent); font-family: var(--mono);
             display: none; margin-top: 4px;
         }
         .warn.show { display: block; }
 
-        /* ANIMATE */
         @keyframes pop { 0%{transform:scale(1)} 50%{transform:scale(1.04)} 100%{transform:scale(1)} }
         .pop { animation: pop .2s ease; }
 
-        /* SCROLLBAR */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
@@ -221,7 +212,7 @@
         @media print {
             @page {
                 size: A4 portrait;
-                margin: 20mm 25mm 20mm 25mm; /* Margens ampliadas: 25mm nas laterais para um visual mais limpo */
+                margin: 20mm 25mm 20mm 25mm; /* Margens ampliadas para respiro visual */
             }
             * {
                 -webkit-print-color-adjust: exact !important;
@@ -247,43 +238,40 @@
                 padding: 0 !important;
             }
 
-            /* ── CABEÇALHO: fixo no topo, mesmo espaço em todas as páginas ── */
+            /* CABEÇALHO: fixo no topo */
             #rel-cabecalho {
                 position: fixed;
                 top: 0; left: 0; right: 0;
                 background: #fff;
-                padding: 0 0 8mm 0 !important; /* Espaçamento apenas embaixo, laterais herdadas da página */
+                padding: 0 0 8mm 0 !important;
                 border-bottom: none;
                 z-index: 1000;
             }
             #rel-cabecalho-inner {
-                padding: 0 !important; /* Remove padding inline para alinhar com as margens da página */
+                padding: 0 !important;
                 border-bottom: 2px solid #f0ece6;
                 padding-bottom: 12px !important;
             }
 
             /* Compensar o espaço do cabeçalho fixo no corpo */
             #rel-corpo-wrap {
-                /* altura do cabeçalho fixo ajustada */
                 margin-top: 32mm;
                 padding: 0 !important;
             }
-            
             #rel-corpo { padding: 0 !important; }
 
-            /* ── QUEBRA DE PÁGINA: nunca corta seção no meio ── */
+            /* QUEBRA DE PÁGINA: proteção */
             .print-section {
-                break-inside:      avoid !important;
+                break-inside: avoid !important;
                 page-break-inside: avoid !important;
                 display: block !important;
             }
             .print-section table {
-                break-inside:      avoid !important;
+                break-inside: avoid !important;
                 page-break-inside: avoid !important;
             }
-            /* Título nunca fica orphão no fim da página */
             .print-section > div:first-child {
-                break-after:      avoid !important;
+                break-after: avoid !important;
                 page-break-after: avoid !important;
             }
 
@@ -314,6 +302,14 @@
                 <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);font-family:var(--body);">Desenvolvido por</div>
                 <div style="font-family:var(--display);font-size:14px;font-weight:900;color:var(--text-primary);letter-spacing:-.01em;">Jocivaldo Sousa</div>
             </div>
+            
+            <!-- Botão Salvar Cálculo -->
+            <button id="btn-salvar" title="Salvar dados no navegador" style="display:flex;align-items:center;gap:8px;padding:0 16px;height:40px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface);cursor:pointer;color:var(--text-primary);font-family:var(--body);font-size:13px;font-weight:700;letter-spacing:.02em;transition:all .2s;" class="no-print">
+                <i data-lucide="save" style="width:16px;height:16px;" id="icon-salvar"></i>
+                <span id="text-salvar">Salvar Cálculo</span>
+            </button>
+
+            <!-- Botão Relatório -->
             <button id="btn-relatorio" title="Gerar Relatório Analítico" style="display:flex;align-items:center;gap:8px;padding:0 16px;height:40px;border-radius:10px;border:none;background:var(--accent);cursor:pointer;color:#fff;font-family:var(--body);font-size:13px;font-weight:700;letter-spacing:.02em;transition:opacity .2s;" class="no-print">
                 <i data-lucide="file-text" style="width:16px;height:16px;"></i>
                 Relatório
@@ -571,10 +567,10 @@
 <div id="modal-relatorio" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);overflow-y:auto;padding:24px 16px;">
     <div style="max-width:800px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.35);" id="relatorio-doc">
 
-        <!-- estrutura de tabela para header repetido na impressão -->
+        <!-- estrutura para impressão -->
         <div id="relatorio-doc-inner">
 
-            <!-- CABEÇALHO (repete em cada página via table-header-group) -->
+            <!-- CABEÇALHO (repete em cada página via print media query) -->
             <div id="rel-cabecalho">
                 <div style="padding:32px 40px 16px 40px;background:#fff;line-height:1.2;" id="rel-cabecalho-inner">
                     <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#1a1714;letter-spacing:-.02em;">RELATÓRIO ANALÍTICO</div>
@@ -588,7 +584,7 @@
             <!-- CORPO -->
             <div id="rel-corpo-wrap">
                 <div style="padding:16px 40px 0 40px;font-family:'DM Sans',sans-serif;line-height:1.2;" id="rel-corpo">
-                    <!-- gerado dinamicamente por gerarRelatorio() -->
+                    <!-- gerado dinamicamente via JS -->
                 </div>
 
                 <!-- RODAPÉ -->
@@ -601,7 +597,7 @@
         </div>
     </div>
 
-    <!-- Botões de ação -->
+    <!-- Botões do Modal -->
     <div class="no-print-modal" style="max-width:800px;margin:14px auto 0;display:flex;gap:10px;justify-content:flex-end;">
         <button onclick="document.getElementById('modal-relatorio').style.display='none'" style="padding:10px 22px;border-radius:8px;border:1.5px solid rgba(255,255,255,.3);background:transparent;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:background .2s;" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='transparent'">Fechar</button>
         <button onclick="imprimirRelatorio()" style="padding:10px 22px;border-radius:8px;border:none;background:#c8460a;color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;transition:opacity .2s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
@@ -713,11 +709,9 @@
 
         // Salva estado global
         CALC = {
-            // entradas
             qtdVaos, vaoMuro, alturaMuro, espessuraMuro, larguraPilar, alturaCinta, alturaBaldrame,
             lToco, espToco, hToco, lBloco, cBloco, hBloco,
             largLastroBaldrame, espLastroBaldrame, largLastroBlocos, espLastroBlocos,
-            // calculados
             qtdPilares, comprimentoLivreAlvenaria, comprimentoTotal,
             areaAlvenaria, qtdBlocosSemPerda, qtdBlocosTotal, alturaChapisco, areaChapisco,
             volPilares, volCinta, volBaldrame, totalEstrutural,
@@ -726,7 +720,7 @@
             grandTotal
         };
 
-        // ── DOM principal ──
+        // ── Atualiza a Tela ──
         setVal('res-qtdBlocosTotal', qtdBlocosTotal.toLocaleString('pt-BR'));
         setVal('res-qtdBlocos-detail', `${fmt2(qtdBlocosSemPerda)} un. + 10% perda`);
         setVal('res-areaChapisco', fmt2(areaChapisco));
@@ -755,14 +749,9 @@
         }
 
         const c = CALC;
-
-        // Data/Hora
         const agora = new Date();
-        const dataHora = agora.toLocaleDateString('pt-BR', {weekday:'long',day:'2-digit',month:'long',year:'numeric'})
-                       + ' às ' + agora.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
-        $('rel-data-hora').innerText = dataHora;
+        $('rel-data-hora').innerText = agora.toLocaleDateString('pt-BR', {weekday:'long',day:'2-digit',month:'long',year:'numeric'}) + ' às ' + agora.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
 
-        // ── Helpers de tabela (Atualizados para um visual mais limpo) ──
         const thStyle  = `padding:10px 12px;font-weight:700;color:#a09a94;text-transform:uppercase;font-size:10px;letter-spacing:.06em;border-bottom:2px solid #f0ece6;line-height:1.2;text-align:left;`;
         const tdLabel  = `padding:10px 12px;font-size:12px;color:#1a1714;border-bottom:1px solid #f5f3ef;line-height:1.4;`;
         const tdFormula= `padding:10px 12px;font-size:11px;color:#a09a94;font-family:'DM Mono',monospace;border-bottom:1px solid #f5f3ef;line-height:1.4;`;
@@ -770,76 +759,37 @@
         const tdTotal  = `padding:14px 12px;font-size:13px;font-weight:800;text-align:right;font-family:'DM Mono',monospace;line-height:1.4;`;
 
         function secTitle(num, label, cor) {
-            return `<div class="rel-secao" style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:800;
-                    text-transform:uppercase;letter-spacing:.05em;color:${cor};
-                    border-bottom:2px solid #f0ece6;padding-bottom:8px;margin:24px 0 12px;display:flex;align-items:center;gap:8px;line-height:1.2;">
-                    <span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:600;opacity:.7;background:rgba(0,0,0,0.04);padding:2px 6px;border-radius:4px;color:${cor};">${num}</span>${label}</div>`;
+            return `<div class="rel-secao" style="font-family:'DM Sans',sans-serif;font-size:13px;font-weight:800; text-transform:uppercase;letter-spacing:.05em;color:${cor}; border-bottom:2px solid #f0ece6;padding-bottom:8px;margin:24px 0 12px;display:flex;align-items:center;gap:8px;line-height:1.2;"> <span style="font-family:'DM Mono',monospace;font-size:11px;font-weight:600;opacity:.7;background:rgba(0,0,0,0.04);padding:2px 6px;border-radius:4px;color:${cor};">${num}</span>${label}</div>`;
         }
         function table(rows, headers) {
             const ths = headers.map((h, i)=>`<th style="${thStyle}${i===2?'text-align:right;':''}">${h}</th>`).join('');
-            return `<table style="width:100%;border-collapse:collapse;margin-bottom:12px;page-break-inside:avoid;break-inside:avoid;">
-                        <thead><tr>${ths}</tr></thead>
-                        <tbody>${rows}</tbody>
-                    </table>`;
+            return `<table style="width:100%;border-collapse:collapse;margin-bottom:12px;page-break-inside:avoid;break-inside:avoid;"><thead><tr>${ths}</tr></thead><tbody>${rows}</tbody></table>`;
         }
         function row(label, formula, value) {
-            return `<tr>
-                <td style="${tdLabel}">${label}</td>
-                <td style="${tdFormula}">${formula}</td>
-                <td style="${tdValue}">${value}</td>
-            </tr>`;
+            return `<tr><td style="${tdLabel}">${label}</td><td style="${tdFormula}">${formula}</td><td style="${tdValue}">${value}</td></tr>`;
         }
         function rowTotal(label, value, cor) {
-            return `<tr style="background-color:rgba(0,0,0,0.015);">
-                <td colspan="2" style="${tdTotal}font-family:'DM Sans',sans-serif;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:${cor||'#c8460a'};text-align:right;">${label}</td>
-                <td style="${tdTotal}color:${cor||'#c8460a'};font-size:14px;">${value}</td>
-            </tr>`;
+            return `<tr style="background-color:rgba(0,0,0,0.015);"><td colspan="2" style="${tdTotal}font-family:'DM Sans',sans-serif;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:${cor||'#c8460a'};text-align:right;">${label}</td><td style="${tdTotal}color:${cor||'#c8460a'};font-size:14px;">${value}</td></tr>`;
         }
 
-        // ── SEÇÃO 01: Parâmetros de Entrada ──
         const rowsParams = [
-            row('Quantidade de Vãos', '—', `${c.qtdVaos} vão(s)`),
-            row('Comprimento do Vão', '—', fmtM(c.vaoMuro)),
-            row('Altura do Muro', '—', fmtM(c.alturaMuro)),
-            row('Espessura da Parede', '—', `${(c.espessuraMuro*100).toFixed(0)} cm`),
-            row('Largura do Pilar', '—', fmtM(c.larguraPilar)),
-            row('Altura da Cinta', '—', fmtM(c.alturaCinta)),
-            row('Altura do Baldrame', '—', fmtM(c.alturaBaldrame)),
+            row('Quantidade de Vãos', '—', `${c.qtdVaos} vão(s)`), row('Comprimento do Vão', '—', fmtM(c.vaoMuro)), row('Altura do Muro', '—', fmtM(c.alturaMuro)),
+            row('Espessura da Parede', '—', `${(c.espessuraMuro*100).toFixed(0)} cm`), row('Largura do Pilar', '—', fmtM(c.larguraPilar)),
+            row('Altura da Cinta', '—', fmtM(c.alturaCinta)), row('Altura do Baldrame', '—', fmtM(c.alturaBaldrame)),
         ].join('');
         const rowsFund = [
-            row('Larg. Toco / Esp. Toco / Alt. Toco', '—',
-                c.lToco ? `${fmtM(c.lToco)} × ${fmtM(c.espToco)} × ${fmtM(c.hToco)}` : 'Não informado'),
-            row('Larg. Bloco / Comp. Bloco / Alt. Bloco', '—',
-                c.lBloco ? `${fmtM(c.lBloco)} × ${fmtM(c.cBloco)} × ${fmtM(c.hBloco)}` : 'Não informado'),
+            row('Larg. Toco / Esp. Toco / Alt. Toco', '—', c.lToco ? `${fmtM(c.lToco)} × ${fmtM(c.espToco)} × ${fmtM(c.hToco)}` : 'Não informado'),
+            row('Larg. Bloco / Comp. Bloco / Alt. Bloco', '—', c.lBloco ? `${fmtM(c.lBloco)} × ${fmtM(c.cBloco)} × ${fmtM(c.hBloco)}` : 'Não informado'),
             row('Lastro Baldrame (Larg × Esp)', '—', `${fmtM(c.largLastroBaldrame)} × ${fmtM(c.espLastroBaldrame)}`),
             row('Lastro Blocos (Larg × Esp)', '—', `${fmtM(c.largLastroBlocos)} × ${fmtM(c.espLastroBlocos)}`),
         ].join('');
+        const sec01 = `<div class="print-section" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:20px;"><div>${secTitle('01', 'Dimensões Gerais e Estrutura', '#c8460a')}${table(rowsParams, ['Parâmetro','—','Valor'])}</div><div>${secTitle('02', 'Fundação e Concreto Magro', '#a07010')}${table(rowsFund, ['Elemento','—','Dimensões'])}</div></div>`;
 
-        const sec01 = `
-            <div class="print-section" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:20px;">
-                <div>
-                    ${secTitle('01', 'Dimensões Gerais e Estrutura', '#c8460a')}
-                    ${table(rowsParams, ['Parâmetro','—','Valor'])}
-                </div>
-                <div>
-                    ${secTitle('02', 'Fundação e Concreto Magro', '#a07010')}
-                    ${table(rowsFund, ['Elemento','—','Dimensões'])}
-                </div>
-            </div>`;
-
-        // ── SEÇÃO 02: Geometria ──
         const rowsGeo = [
-            row('Quantidade de Pilares', 'Vãos + 1', `${c.qtdPilares} un.`),
-            row('Comprimento Livre de Alvenaria', `${c.qtdVaos} × ${fmt2(c.vaoMuro)} m`, fmtM(c.comprimentoLivreAlvenaria)),
-            row('Comprimento Total do Muro', `L.livre + (${c.qtdPilares} × ${fmt2(c.larguraPilar)} m)`, fmtM(c.comprimentoTotal)),
+            row('Quantidade de Pilares', 'Vãos + 1', `${c.qtdPilares} un.`), row('Comprimento Livre de Alvenaria', `${c.qtdVaos} × ${fmt2(c.vaoMuro)} m`, fmtM(c.comprimentoLivreAlvenaria)), row('Comprimento Total do Muro', `L.livre + (${c.qtdPilares} × ${fmt2(c.larguraPilar)} m)`, fmtM(c.comprimentoTotal)),
         ].join('');
-        const sec02 = `
-            <div class="print-section" style="margin-bottom:20px;">
-                ${secTitle('03', 'Geometria do Muro', '#1a4fa0')}
-                ${table(rowsGeo, ['Elemento','Fórmula','Resultado'])}
-            </div>`;
+        const sec02 = `<div class="print-section" style="margin-bottom:20px;">${secTitle('03', 'Geometria do Muro', '#1a4fa0')}${table(rowsGeo, ['Elemento','Fórmula','Resultado'])}</div>`;
 
-        // ── SEÇÃO 03: Alvenaria e Chapisco ──
         const rowsAlv = [
             row('Área de Alvenaria', `${fmt2(c.comprimentoLivreAlvenaria)} m × ${fmt2(c.alturaMuro)} m`, fmtM2(c.areaAlvenaria)),
             row('Blocos sem perda', `${fmtM2(c.areaAlvenaria)} × 20 un/m²`, `${fmt2(c.qtdBlocosSemPerda)} un.`),
@@ -849,157 +799,105 @@
             rowTotal('Total Alvenaria (com perda)', `${c.qtdBlocosTotal.toLocaleString('pt-BR')} unidades`, '#1a4fa0'),
             rowTotal('Total Chapisco', fmtM2(c.areaChapisco), '#1a4fa0'),
         ].join('');
-        const sec03 = `
-            <div class="print-section" style="margin-bottom:20px;">
-                ${secTitle('04', 'Alvenaria e Revestimento (Chapisco)', '#1a4fa0')}
-                ${table(rowsAlv, ['Elemento','Fórmula','Resultado'])}
-            </div>`;
+        const sec03 = `<div class="print-section" style="margin-bottom:20px;">${secTitle('04', 'Alvenaria e Revestimento (Chapisco)', '#1a4fa0')}${table(rowsAlv, ['Elemento','Fórmula','Resultado'])}</div>`;
 
-        // ── SEÇÃO 04: Concreto Estrutural ──
         const rowsEst = [
-            row(`Pilares (${c.qtdPilares} un.)`,
-                `${c.qtdPilares} × (${fmt2(c.larguraPilar)} × ${fmt2(c.espessuraMuro)} × ${fmt2(c.alturaMuro)} m)`,
-                fmt3(c.volPilares)),
-            row('Cinta de Amarração',
-                `${fmt2(c.comprimentoTotal)} × ${fmt2(c.espessuraMuro)} × ${fmt2(c.alturaCinta)} m`,
-                fmt3(c.volCinta)),
-            row('Viga Baldrame',
-                `${fmt2(c.comprimentoTotal)} × ${fmt2(c.espessuraMuro)} × ${fmt2(c.alturaBaldrame)} m`,
-                fmt3(c.volBaldrame)),
+            row(`Pilares (${c.qtdPilares} un.)`, `${c.qtdPilares} × (${fmt2(c.larguraPilar)} × ${fmt2(c.espessuraMuro)} × ${fmt2(c.alturaMuro)} m)`, fmt3(c.volPilares)),
+            row('Cinta de Amarração', `${fmt2(c.comprimentoTotal)} × ${fmt2(c.espessuraMuro)} × ${fmt2(c.alturaCinta)} m`, fmt3(c.volCinta)),
+            row('Viga Baldrame', `${fmt2(c.comprimentoTotal)} × ${fmt2(c.espessuraMuro)} × ${fmt2(c.alturaBaldrame)} m`, fmt3(c.volBaldrame)),
             rowTotal('Total Concreto Estrutural', fmt3(c.totalEstrutural), '#1a4fa0'),
         ].join('');
-        const sec04 = `
-            <div class="print-section" style="margin-bottom:20px;">
-                ${secTitle('05', 'Concreto Estrutural', '#1a4fa0')}
-                ${table(rowsEst, ['Elemento','Fórmula','Volume'])}
-            </div>`;
+        const sec04 = `<div class="print-section" style="margin-bottom:20px;">${secTitle('05', 'Concreto Estrutural', '#1a4fa0')}${table(rowsEst, ['Elemento','Fórmula','Volume'])}</div>`;
 
-        // ── SEÇÃO 05: Fundação ──
         const rowsFundVol = [
-            row(`Tocos de Pilar (${c.qtdPilares} un.)`,
-                c.tocoOk ? `${c.qtdPilares} × (${fmt2(c.lToco)} × ${fmt2(c.espToco)} × ${fmt2(c.hToco)} m)` : 'Dados não informados',
-                c.tocoOk ? fmt3(c.volTocos) : '—'),
-            row(`Blocos de Fundação (${c.qtdPilares} un.)`,
-                c.blocoOk ? `${c.qtdPilares} × (${fmt2(c.lBloco)} × ${fmt2(c.cBloco)} × ${fmt2(c.hBloco)} m)` : 'Dados não informados',
-                c.blocoOk ? fmt3(c.volBlocos) : '—'),
+            row(`Tocos de Pilar (${c.qtdPilares} un.)`, c.tocoOk ? `${c.qtdPilares} × (${fmt2(c.lToco)} × ${fmt2(c.espToco)} × ${fmt2(c.hToco)} m)` : 'Dados não informados', c.tocoOk ? fmt3(c.volTocos) : '—'),
+            row(`Blocos de Fundação (${c.qtdPilares} un.)`, c.blocoOk ? `${c.qtdPilares} × (${fmt2(c.lBloco)} × ${fmt2(c.cBloco)} × ${fmt2(c.hBloco)} m)` : 'Dados não informados', c.blocoOk ? fmt3(c.volBlocos) : '—'),
             rowTotal('Total Concreto Fundação', fmt3(c.totalFundacao), '#a07010'),
         ].join('');
-        const sec05 = `
-            <div class="print-section" style="margin-bottom:20px;">
-                ${secTitle('06', 'Fundação', '#a07010')}
-                ${table(rowsFundVol, ['Elemento','Fórmula','Volume'])}
-            </div>`;
+        const sec05 = `<div class="print-section" style="margin-bottom:20px;">${secTitle('06', 'Fundação', '#a07010')}${table(rowsFundVol, ['Elemento','Fórmula','Volume'])}</div>`;
 
-        // ── SEÇÃO 06: Concreto Magro ──
         const rowsMagro = [
-            row('Lastro sob Baldrame',
-                `${fmt2(c.comprimentoTotal)} m × ${fmt2(c.largLastroBaldrame)} m × ${fmt2(c.espLastroBaldrame)} m`,
-                fmt3(c.magroBaldrame)),
-            row(`Lastro sob Blocos (${c.qtdPilares} un.)`,
-                c.blocoOk ? `${c.qtdPilares} × (${fmt2(c.largLastroBlocos)} × ${fmt2(c.cBloco)} × ${fmt2(c.espLastroBlocos)} m)` : 'Blocos não informados',
-                c.blocoOk ? fmt3(c.magroBlocos) : '—'),
+            row('Lastro sob Baldrame', `${fmt2(c.comprimentoTotal)} m × ${fmt2(c.largLastroBaldrame)} m × ${fmt2(c.espLastroBaldrame)} m`, fmt3(c.magroBaldrame)),
+            row(`Lastro sob Blocos (${c.qtdPilares} un.)`, c.blocoOk ? `${c.qtdPilares} × (${fmt2(c.largLastroBlocos)} × ${fmt2(c.cBloco)} × ${fmt2(c.espLastroBlocos)} m)` : 'Blocos não informados', c.blocoOk ? fmt3(c.magroBlocos) : '—'),
             rowTotal('Total Concreto Magro (Lastro)', fmt3(c.totalMagro), '#6b6560'),
         ].join('');
-        const sec06 = `
-            <div class="print-section" style="margin-bottom:20px;">
-                ${secTitle('07', 'Concreto Magro — Lastro', '#6b6560')}
-                ${table(rowsMagro, ['Elemento','Fórmula','Volume'])}
-            </div>`;
+        const sec06 = `<div class="print-section" style="margin-bottom:20px;">${secTitle('07', 'Concreto Magro — Lastro', '#6b6560')}${table(rowsMagro, ['Elemento','Fórmula','Volume'])}</div>`;
 
-        // ── RESUMO GERAL ──
-        const resumo = `
-            <div style="background:#fdfdfc;border:1px solid #f0ece6;border-radius:12px;padding:24px;margin-top:32px;margin-bottom:24px;page-break-inside:avoid;break-inside:avoid;">
-                <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:900;text-transform:uppercase;
-                            letter-spacing:.08em;color:#1a1714;margin-bottom:16px;display:flex;align-items:center;gap:10px;">
-                    <i data-lucide="check-circle-2" style="width:18px;height:18px;color:#c8460a;"></i>
-                    RESUMO GERAL — BASE PARA MEDIÇÃO
-                </div>
-                <table style="width:100%;border-collapse:collapse;">
-                    <tr>
-                        <td style="padding:12px 0;font-size:12px;color:#1a1714;border-bottom:1px solid #f0ece6;line-height:1.4;">
-                            <span style="font-size:10px;font-family:'DM Mono',monospace;color:#a09a94;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:4px;">Alvenaria</span>
-                            Blocos cerâmicos 9×19×24 cm (com 10% perda)
-                        </td>
-                        <td style="padding:12px 0;font-family:'DM Mono',monospace;font-size:15px;font-weight:700;color:#1a1714;text-align:right;border-bottom:1px solid #f0ece6;">
-                            ${c.qtdBlocosTotal.toLocaleString('pt-BR')} un.
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding:12px 0;font-size:12px;color:#1a1714;border-bottom:1px solid #f0ece6;line-height:1.4;">
-                            <span style="font-size:10px;font-family:'DM Mono',monospace;color:#a09a94;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:4px;">Chapisco</span>
-                            2 faces · muro + cinta + 10 cm baldrame
-                        </td>
-                        <td style="padding:12px 0;font-family:'DM Mono',monospace;font-size:15px;font-weight:700;color:#1a1714;text-align:right;border-bottom:1px solid #f0ece6;">
-                            ${fmtM2(c.areaChapisco)}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding:12px 0;font-size:12px;color:#1a1714;border-bottom:1px solid #f0ece6;line-height:1.4;">
-                            <span style="font-size:10px;font-family:'DM Mono',monospace;color:#a09a94;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:4px;">Concreto Estrutural</span>
-                            Pilares + Cinta + Baldrame
-                        </td>
-                        <td style="padding:12px 0;font-family:'DM Mono',monospace;font-size:16px;font-weight:700;color:#1a4fa0;text-align:right;border-bottom:1px solid #f0ece6;">
-                            ${fmt3(c.totalEstrutural)}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding:12px 0;font-size:12px;color:#1a1714;border-bottom:1px solid #f0ece6;line-height:1.4;">
-                            <span style="font-size:10px;font-family:'DM Mono',monospace;color:#a09a94;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:4px;">Concreto Fundação</span>
-                            Tocos + Blocos
-                        </td>
-                        <td style="padding:12px 0;font-family:'DM Mono',monospace;font-size:16px;font-weight:700;color:#a07010;text-align:right;border-bottom:1px solid #f0ece6;">
-                            ${fmt3(c.totalFundacao)}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding:12px 0;font-size:12px;color:#1a1714;border-bottom:1px solid #1a1714;line-height:1.4;">
-                            <span style="font-size:10px;font-family:'DM Mono',monospace;color:#a09a94;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:4px;">Concreto Magro</span>
-                            Lastro sob baldrame + blocos
-                        </td>
-                        <td style="padding:12px 0;font-family:'DM Mono',monospace;font-size:16px;font-weight:700;color:#6b6560;text-align:right;border-bottom:1px solid #1a1714;">
-                            ${fmt3(c.totalMagro)}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding:18px 0 4px;font-family:'Syne',sans-serif;font-size:15px;font-weight:900;color:#1a1714;text-transform:uppercase;letter-spacing:.04em;">
-                            VOLUME TOTAL DE CONCRETO
-                        </td>
-                        <td style="padding:18px 0 4px;font-family:'DM Mono',monospace;font-size:22px;font-weight:700;color:#c8460a;text-align:right;">
-                            ${fmt3(c.grandTotal)}
-                        </td>
-                    </tr>
-                </table>
-            </div>`;
+        const resumo = `<div style="background:#fdfdfc;border:1px solid #f0ece6;border-radius:12px;padding:24px;margin-top:32px;margin-bottom:24px;page-break-inside:avoid;break-inside:avoid;">
+            <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:#1a1714;margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+                <i data-lucide="check-circle-2" style="width:18px;height:18px;color:#c8460a;"></i> RESUMO GERAL — BASE PARA MEDIÇÃO
+            </div>
+            <table style="width:100%;border-collapse:collapse;">
+                <tr><td style="padding:12px 0;font-size:12px;color:#1a1714;border-bottom:1px solid #f0ece6;line-height:1.4;"><span style="font-size:10px;font-family:'DM Mono',monospace;color:#a09a94;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:4px;">Alvenaria</span>Blocos cerâmicos 9×19×24 cm (com 10% perda)</td><td style="padding:12px 0;font-family:'DM Mono',monospace;font-size:15px;font-weight:700;color:#1a1714;text-align:right;border-bottom:1px solid #f0ece6;">${c.qtdBlocosTotal.toLocaleString('pt-BR')} un.</td></tr>
+                <tr><td style="padding:12px 0;font-size:12px;color:#1a1714;border-bottom:1px solid #f0ece6;line-height:1.4;"><span style="font-size:10px;font-family:'DM Mono',monospace;color:#a09a94;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:4px;">Chapisco</span>2 faces · muro + cinta + 10 cm baldrame</td><td style="padding:12px 0;font-family:'DM Mono',monospace;font-size:15px;font-weight:700;color:#1a1714;text-align:right;border-bottom:1px solid #f0ece6;">${fmtM2(c.areaChapisco)}</td></tr>
+                <tr><td style="padding:12px 0;font-size:12px;color:#1a1714;border-bottom:1px solid #f0ece6;line-height:1.4;"><span style="font-size:10px;font-family:'DM Mono',monospace;color:#a09a94;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:4px;">Concreto Estrutural</span>Pilares + Cinta + Baldrame</td><td style="padding:12px 0;font-family:'DM Mono',monospace;font-size:16px;font-weight:700;color:#1a4fa0;text-align:right;border-bottom:1px solid #f0ece6;">${fmt3(c.totalEstrutural)}</td></tr>
+                <tr><td style="padding:12px 0;font-size:12px;color:#1a1714;border-bottom:1px solid #f0ece6;line-height:1.4;"><span style="font-size:10px;font-family:'DM Mono',monospace;color:#a09a94;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:4px;">Concreto Fundação</span>Tocos + Blocos</td><td style="padding:12px 0;font-family:'DM Mono',monospace;font-size:16px;font-weight:700;color:#a07010;text-align:right;border-bottom:1px solid #f0ece6;">${fmt3(c.totalFundacao)}</td></tr>
+                <tr><td style="padding:12px 0;font-size:12px;color:#1a1714;border-bottom:1px solid #1a1714;line-height:1.4;"><span style="font-size:10px;font-family:'DM Mono',monospace;color:#a09a94;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:4px;">Concreto Magro</span>Lastro sob baldrame + blocos</td><td style="padding:12px 0;font-family:'DM Mono',monospace;font-size:16px;font-weight:700;color:#6b6560;text-align:right;border-bottom:1px solid #1a1714;">${fmt3(c.totalMagro)}</td></tr>
+                <tr><td style="padding:18px 0 4px;font-family:'Syne',sans-serif;font-size:15px;font-weight:900;color:#1a1714;text-transform:uppercase;letter-spacing:.04em;">VOLUME TOTAL DE CONCRETO</td><td style="padding:18px 0 4px;font-family:'DM Mono',monospace;font-size:22px;font-weight:700;color:#c8460a;text-align:right;">${fmt3(c.grandTotal)}</td></tr>
+            </table></div>`;
 
-        // ── Notas Técnicas ──
-        const notas = `
-            <div style="background:#f5f3ef;border-radius:10px;padding:16px 20px;font-size:11px;page-break-inside:avoid;break-inside:avoid;
-                        color:#6b6560;font-family:'DM Mono',monospace;line-height:1.8;">
-                <strong style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;
-                               text-transform:uppercase;letter-spacing:.06em;color:#1a1714;display:block;margin-bottom:6px;">Notas Técnicas</strong>
-                · Alvenaria: bloco cerâmico 9×19×24 cm — rendimento 20 un/m² — acréscimo de 10% para perdas<br>
-                · Pilares: seção = Larg. Pilar × Esp. Parede · Altura = Altura do Muro (cinta calculada separadamente)<br>
-                · Cinta de Amarração: comprimento total inclui largura dos pilares extremos<br>
-                · Chapisco: 2 faces · cobre altura do muro + cinta + 10 cm do baldrame exposto<br>
-                · Concreto Magro: dimensões de lastro configuradas manualmente pelo usuário<br>
-                · Validações ativas: entradas negativas e zero são ignoradas nos cálculos
-            </div>`;
+        const notas = `<div style="background:#f5f3ef;border-radius:10px;padding:16px 20px;font-size:11px;page-break-inside:avoid;break-inside:avoid;color:#6b6560;font-family:'DM Mono',monospace;line-height:1.8;">
+            <strong style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#1a1714;display:block;margin-bottom:6px;">Notas Técnicas</strong>
+            · Alvenaria: bloco cerâmico 9×19×24 cm — rendimento 20 un/m² — acréscimo de 10% para perdas<br>· Pilares: seção = Larg. Pilar × Esp. Parede · Altura = Altura do Muro (cinta calculada separadamente)<br>· Cinta de Amarração: comprimento total inclui largura dos pilares extremos<br>· Chapisco: 2 faces · cobre altura do muro + cinta + 10 cm do baldrame exposto<br>· Concreto Magro: dimensões de lastro configuradas manualmente pelo usuário<br>· Validações ativas: entradas negativas e zero são ignoradas nos cálculos</div>`;
 
-        // Monta tudo no corpo
         $('rel-corpo').innerHTML = sec01 + sec02 + sec03 + sec04 + sec05 + sec06 + resumo + notas;
-
-        // Exibe modal
         $('modal-relatorio').style.display = 'block';
         lucide.createIcons();
     }
 
     function imprimirRelatorio() {
-        // Dica: no diálogo de impressão, desative "Cabeçalhos e rodapés" do navegador
         window.print();
     }
 
-    // Botão do cabeçalho → abre relatório
     document.getElementById('btn-relatorio').addEventListener('click', gerarRelatorio);
+
+    // ─── SALVAR NO LOCALSTORAGE (CACHE) ──────────────────────
+    const btnSalvar = document.getElementById('btn-salvar');
+    const textSalvar = document.getElementById('text-salvar');
+    const iconSalvar = document.getElementById('icon-salvar');
+
+    function salvarDados() {
+        const inputs = document.querySelectorAll('.input-field');
+        const dados = {};
+        inputs.forEach(input => {
+            dados[input.id] = input.value;
+        });
+        localStorage.setItem('calculadoraMuroETE', JSON.stringify(dados));
+
+        const originalText = textSalvar.innerText;
+        textSalvar.innerText = "Salvo!";
+        iconSalvar.setAttribute('data-lucide', 'check');
+        lucide.createIcons();
+        btnSalvar.style.borderColor = "var(--green)";
+        btnSalvar.style.color = "var(--green)";
+        btnSalvar.style.background = "var(--green-soft)";
+
+        setTimeout(() => {
+            textSalvar.innerText = originalText;
+            iconSalvar.setAttribute('data-lucide', 'save');
+            lucide.createIcons();
+            btnSalvar.style.borderColor = "var(--border)";
+            btnSalvar.style.color = "var(--text-primary)";
+            btnSalvar.style.background = "var(--surface)";
+        }, 2000);
+    }
+
+    function carregarDados() {
+        const dadosSalvos = localStorage.getItem('calculadoraMuroETE');
+        if (dadosSalvos) {
+            try {
+                const dados = JSON.parse(dadosSalvos);
+                for (const id in dados) {
+                    const el = document.getElementById(id);
+                    if (el) el.value = dados[id];
+                }
+            } catch(e) {
+                console.error("Erro ao carregar dados do cache", e);
+            }
+        }
+    }
+
+    btnSalvar.addEventListener('click', salvarDados);
 
     // ─── INPUTS ──────────────────────────────────────────────
     document.querySelectorAll('input').forEach(input => input.addEventListener('input', calculateMaterials));
@@ -1010,7 +908,6 @@
         const grid = document.getElementById('main-grid');
         grid.style.gridTemplateColumns = w < 768 ? '1fr' : '1fr 1fr';
 
-        // Header mobile
         const header = document.querySelector('#app > .card');
         if (header) {
             if (w < 768) {
@@ -1027,7 +924,6 @@
                 header.style.padding       = '20px 24px';
             }
         }
-        // Grids 3 colunas → 2 no mobile pequeno
         document.querySelectorAll('.card div[style*="1fr 1fr 1fr"]').forEach(el => {
             el.style.gridTemplateColumns = w < 480 ? '1fr 1fr' : '1fr 1fr 1fr';
         });
@@ -1035,6 +931,7 @@
     window.addEventListener('resize', adjustLayout);
     setTimeout(adjustLayout, 50);
 
+    carregarDados();
     calculateMaterials();
 </script>
 </body>
